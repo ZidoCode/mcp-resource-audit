@@ -46,6 +46,7 @@ Exit codes: 0 = clean, 1 = warnings only, 2 = any CRITICAL finding.
 
 import json
 import os
+import argparse
 import sys
 
 CRITICAL = "CRITICAL"
@@ -226,12 +227,16 @@ def report(findings, src=""):
 
 
 def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-    if len(argv) < 2:
-        print(__doc__.strip())
+    parser = argparse.ArgumentParser(
+        prog="mcp-resource-audit",
+        description="Audit a captured MCP session for resource/URI-handling bugs.",
+    )
+    parser.add_argument("path", nargs="?", help="JSONL session capture to audit")
+    args = parser.parse_args(sys.argv[1:] if argv is None else list(argv)[1:])
+    if not args.path:
+        parser.print_help()
         return 2
-    src = argv[1]
+    src = args.path
     try:
         with open(src, "r", encoding="utf-8", errors="replace") as fh:
             raw = fh.read()
